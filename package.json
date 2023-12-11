@@ -1,0 +1,34 @@
+{
+  "name": "uwebsockets",
+  "version": "2.0.0",
+  "description": "µWebSockets.js is a web server bypass for Node.js that reimplements eventing, networking, encryption, web protocols, routing and pub/sub in highly optimized C++. As such, µWebSockets.js delivers web serving for Node.js, 8.5x that of Fastify and at least 10x that of Socket.IO. It is also the built-in web server of Bun.",
+  "main": "uws.js",
+  "types": "./index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NPM-Package-Jaykumar/uWebSockets.git"
+  },
+  "keywords": [
+    "µWebSockets.js",
+    "web",
+    "server",
+    "Node.js",
+    "eventing",
+    "networking",
+    "encryption",
+    "web",
+    "protocols",
+    "routing",
+    "pub/sub",
+    "C++.",
+    "µWebSockets.js",
+    "Fastify",
+    "Socket.IO."
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NPM-Package-Jaykumar/uWebSockets/issues"
+  },
+  "homepage": "https://github.com/NPM-Package-Jaykumar/uWebSockets#readme"
+}
