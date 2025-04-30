@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/uNetworking/uWebSockets/master/misc/logo.svg" height="180" /><br>
+<img src="https://github.com/NPM-Package-Jaykumar/uWebSockets/blob/main/logo.svg" height="180" /><br>
 <i>Simple, secure</i><sup><a href="https://github.com/NPM-Package-Jaykumar/uWebSockets/tree/master/fuzzing#fuzz-testing-of-various-parsers-and-mocked-examples">1</a></sup><i> & standards compliant</i><sup><a href="https://unetworking.github.io/uwebsockets/report.pdf">2</a></sup><i> web server for the most demanding</i><sup><a href="https://github.com/NPM-Package-Jaykumar/uWebSockets/tree/master/benchmarks#benchmark-driven-development">3</a></sup><i> of applications.</i> <a href="https://github.com/NPM-Package-Jaykumar/uWebSockets#readme">Read more...</a>
 <br><br>
 
