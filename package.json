@@ -1,6 +1,6 @@
 {
   "name": "uwebsockets",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Fastest uWebSockets server for Node.js – µWebSockets outperforms Socket.IO & Fastify. Built in C++ for high-performance networking & pub/sub.",
   "main": "uws.js",
   "types": "./index.d.ts",
