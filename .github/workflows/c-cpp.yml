@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build-windows:
@@ -13,8 +13,8 @@ jobs:
       - name: Update binaries
         run: |
           $ErrorActionPreference = 'SilentlyContinue'
-          git clone --recursive https://github.com/uNetworking/uWebSockets.js.git
-          cd uWebSockets.js
+          git clone --recursive https://github.com/uNetworking/uwebsockets.git
+          cd uwebsockets
           nmake
           git fetch origin binaries:binaries
           git checkout binaries
@@ -23,7 +23,7 @@ jobs:
           git config --global user.email "alexhultman@gmail.com"
           git config --global user.name "Alex Hultman"
           git commit -a -m "[GitHub Actions] Updated windows-latest binaries"
-          git push "https://unetworkingab:${{ secrets.SECRET }}@github.com/uNetworking/uWebSockets.js" binaries
+          git push "https://unetworkingab:${{ secrets.SECRET }}@github.com/uNetworking/uwebsockets" binaries
   build-unix:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -35,8 +35,8 @@ jobs:
           sudo xcode-select -switch /Applications/Xcode_12.2.app || true
           sudo apt update || true
           sudo apt install -y g++-aarch64-linux-gnu || true
-          git clone --recursive https://github.com/uNetworking/uWebSockets.js.git
-          cd uWebSockets.js
+          git clone --recursive https://github.com/uNetworking/uwebsockets.git
+          cd uwebsockets
           make
           git fetch origin binaries:binaries
           git checkout binaries
@@ -47,7 +47,7 @@ jobs:
           git config --global user.email "alexhultman@gmail.com"
           git config --global user.name "Alex Hultman"
           git commit -a -m "[GitHub Actions] Updated ${{ matrix.os }} binaries" || true
-          git push "https://unetworkingab:${{ secrets.SECRET }}@github.com/uNetworking/uWebSockets.js" binaries
+          git push "https://unetworkingab:${{ secrets.SECRET }}@github.com/uNetworking/uwebsockets" binaries
 
   build-arm:
     runs-on: ubuntu-latest
@@ -61,14 +61,14 @@ jobs:
             os: bullseye
     steps:
       - name: Clone
-        run: git clone --recursive https://github.com/uNetworking/uWebSockets.js.git
+        run: git clone --recursive https://github.com/uNetworking/uwebsockets.git
       - uses: uraimo/run-on-arch-action@v2.3.0
         name: Compile binaries
         with:
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.os }}
           dockerRunArgs: |
-            --volume "${PWD}/uWebSockets.js:/repository"
+            --volume "${PWD}/uwebsockets:/repository"
           install: |
             apt-get update -q -y
             apt-get install -q -y build-essential cmake libz-dev golang curl libunwind-dev clang
@@ -77,7 +77,7 @@ jobs:
             make
       - name: Update binaries
         run: |
-          cd uWebSockets.js
+          cd uwebsockets
           git fetch origin binaries:binaries
           git checkout binaries
           cp dist/*.node .
@@ -89,4 +89,4 @@ jobs:
           git config --global user.name "Alex Hultman"
           git add *.node *.js
           git commit -a -m "[GitHub Actions] Updated linux-${{ matrix.arch }} binaries" || true
-          git push "https://unetworkingab:${{ secrets.SECRET }}@github.com/uNetworking/uWebSockets.js" binaries
+          git push "https://unetworkingab:${{ secrets.SECRET }}@github.com/uNetworking/uwebsockets" binaries
