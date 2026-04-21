@@ -197,3 +197,27 @@ wsApp.listen(9001, (token) => {
 // based on your requirements.
 // For more information on uwebsockets, refer to the official documentation
 ```
+
+## Supported Node Versions
+
+- Oldest supported Node.js version: `16`
+- Supported Node.js versions: `16`, `18`, `20`, `21`, `22`, `24`, `25`
+- Not supported: `17`, `19`, `23`
+
+## Supported Docker Images
+
+- `node:16-bullseye`, `node:16-bullseye-slim`
+- `node:18-bullseye`, `node:18-bullseye-slim`
+- `node:20-bullseye`, `node:20-bullseye-slim`, `node:20-bookworm`, `node:20-bookworm-slim`, `node:20-trixie`, `node:20-trixie-slim`
+- `node:21-bookworm`, `node:21-bookworm-slim`, `node:21-trixie`, `node:21-trixie-slim`
+- `node:22-trixie`, `node:22-trixie-slim`
+- `node:24-trixie`, `node:24-trixie-slim`
+- `node:25-trixie`, `node:25-trixie-slim`
+
+## Local Ubuntu / Linux Support
+
+- Linux support depends on `glibc`, not only Node.js version
+- Node `16`, `18`, `20`, `21` work with the bundled older Linux builds
+- Node `22`, `24`, `25` Linux builds require `glibc >= 2.38`
+- Ubuntu `22.04` uses older `glibc`, so Node `22`, `24`, `25` may fail there
+- Ubuntu `24.04` or newer is recommended for Node `22`, `24`, `25`
