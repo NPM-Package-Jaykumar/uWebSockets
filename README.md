@@ -14,7 +14,12 @@
 
 - Browse the [documentation](https://unetworking.github.io/uwebsockets/generated/) and see the [main repo](https://github.com/NPM-Package-Jaykumar/uWebSockets). There are tons of [examples](examples) but here's the gist of it all:
 
-Example 1:
+Example 1 (Basic Echo & HTTP): 
+*Ideal for simple, single-instance applications that just need basic WebSocket echoing and HTTP serving.*
+
+> **💡 Note on `.App()` vs `.SSLApp()`:**
+> - Use `.App()` to create a standard, unencrypted server (`http://` and `ws://`). This is standard for local testing or when deploying behind a cloud load balancer (like AWS or Render) that handles SSL termination for you.
+> - Use `.SSLApp()` (shown below) to create a secure, encrypted server (`https://` and `wss://`). You only need this if your Node.js server is directly exposed to the public internet and you must manually provide SSL certificates (`key.pem` and `cert.pem`).
 
 ```javascript
 /* Non-SSL is simply App() */
@@ -53,7 +58,8 @@ require("uwebsockets")
   });
 ```
 
-Example 2:
+Example 2 (Authentication & Local Rooms): 
+*Great for medium-scale, single-instance applications (like a local multiplayer game or small chat app) that require query parameter authentication and room-based broadcasting.*
 
 ```javascript
 const uWS = require("uwebsockets");
@@ -75,21 +81,21 @@ const wsApp = uWS.App().ws("/*", {
   idleTimeout: 8, // 8 seconds idle timeout
 
   upgrade: (res, req, context) => {
-    // Check if the request has a valid "channel_id" query parameter
-    const channel_id = req.getQuery("channel_id");
+    // Check if the request has a valid "channel_name" query parameter
+    const channel_name = req.getQuery("channel_name");
 
-    // Check if the channel_id is valid (you can implement your own validation logic). below is an example
-    if (!channel_id) {
-      // Invalid channel_id, send a 400 Bad Request response
+    // Check if the channel_name is valid (you can implement your own validation logic). below is an example
+    if (!channel_name) {
+      // Invalid channel_name, send a 400 Bad Request response
       res
-        .writeStatus("400 Bad Request! missing channel_id in query parameter")
+        .writeStatus("400 Bad Request! missing channel_name in query parameter")
         .end();
       return;
     }
 
-    // Store the channel_id in the WebSocket connection
+    // Store the channel_name in the WebSocket connection
     res.upgrade(
-      { channel_id },
+      { channel_name },
       req.getHeader("sec-websocket-key"),
       req.getHeader("sec-websocket-protocol"),
       req.getHeader("sec-websocket-extensions"),
@@ -98,17 +104,17 @@ const wsApp = uWS.App().ws("/*", {
   },
 
   open: (ws) => {
-    // Check if the channel_id is already connected
-    const channel_id = ws.channel_id;
+    // Check if the channel_name is already connected
+    const channel_name = ws.channel_name;
 
     // Store the WebSocket connection in the WS_INSTANCES object
-    WS_INSTANCES[channel_id] = WS_INSTANCES[channel_id] || [];
-    WS_INSTANCES[channel_id].push(ws);
+    WS_INSTANCES[channel_name] = WS_INSTANCES[channel_name] || [];
+    WS_INSTANCES[channel_name].push(ws);
 
     // Send a welcome message to the client
     const welcomePayload = {
       event: "welcome",
-      message: `Welcome ${channel_id} to the WebSocket server!`,
+      message: `Welcome ${channel_name} to the WebSocket server!`,
       timestamp: Date.now(),
     };
     ws.send(JSON.stringify(welcomePayload));
@@ -117,7 +123,7 @@ const wsApp = uWS.App().ws("/*", {
   message: (ws, message) => {
     try {
       // Parse the message and handle it
-      const channel_id = ws.channel_id;
+      const channel_name = ws.channel_name;
 
       // Buffer.from(message).toString() is used to convert the message to a string
       // This is necessary because uwebsockets may send binary messages
@@ -126,12 +132,12 @@ const wsApp = uWS.App().ws("/*", {
       const msg = Buffer.from(message).toString();
       const parsedMsg = JSON.parse(msg);
 
-      // Payload to be sent to the channel_id
+      // Payload to be sent to the channel_name
       // You can customize the payload structure based on your requirements
-      // For example, you can include the channel_id, event type, and data
+      // For example, you can include the channel_name, event type, and data
       const payload = {
         event: "broadcast",
-        from: channel_id,
+        from: channel_name,
         data: parsedMsg,
         timestamp: Date.now(),
       };
@@ -148,11 +154,11 @@ const wsApp = uWS.App().ws("/*", {
       // If you are sending text messages, you can directly use message.toString()
       const msg = Buffer.from(message).toString();
 
-      // error payload to be sent to the channel_id
+      // error payload to be sent to the channel_name
       // You can customize the error payload structure based on your requirements
       const errorPayload = {
         event: "error",
-        from: ws.channel_id,
+        from: ws.channel_name,
         message: error.message,
         data: JSON.stringify(msg),
         timestamp: Date.now(),
@@ -163,22 +169,22 @@ const wsApp = uWS.App().ws("/*", {
       console.error("Error processing message:", {
         error,
         message: JSON.stringify(msg),
-        ws: ws.channel_id,
+        ws: ws.channel_name,
       });
     }
   },
   close: (ws) => {
     // Handle WebSocket disconnection
-    const channel_id = ws.channel_id;
+    const channel_name = ws.channel_name;
 
     // Remove the WebSocket connection from the WS_INSTANCES object
-    // This is done by filtering out the closed connection from the array of connections for the channel_id
-    // If there are no more connections for the channel_id, delete the channel_id entry from WS_INSTANCES
+    // This is done by filtering out the closed connection from the array of connections for the channel_name
+    // If there are no more connections for the channel_name, delete the channel_name entry from WS_INSTANCES
     // This ensures that the server does not keep track of closed connections
     // and helps to free up resources
-    WS_INSTANCES[channel_id] =
-      WS_INSTANCES[channel_id]?.filter((conn) => conn !== ws) || [];
-    if (WS_INSTANCES[channel_id].length === 0) delete WS_INSTANCES[channel_id];
+    WS_INSTANCES[channel_name] =
+      WS_INSTANCES[channel_name]?.filter((conn) => conn !== ws) || [];
+    if (WS_INSTANCES[channel_name].length === 0) delete WS_INSTANCES[channel_name];
   },
 });
 
@@ -196,6 +202,134 @@ wsApp.listen(9001, (token) => {
 // You can also implement additional features such as authentication, authorization, and message validation
 // based on your requirements.
 // For more information on uwebsockets, refer to the official documentation
+```
+
+Example 3 (Massive Scale with Redis Sharded Pub/Sub): 
+*The architecture required for highly scalable, globally distributed applications like WhatsApp, Discord, or Snapchat.*
+
+```javascript
+const uWS = require("uwebsockets");
+const Redis = require("ioredis"); // npm install ioredis
+
+const WS_INSTANCES = {};
+
+// Setup Redis Publisher and Subscriber for bridging
+
+// Option 1: Standalone Setup
+const redisConfig = {
+  host: "127.0.0.1",
+  port: 6379,
+  // username: "my_username", // Optional: uncomment if your Redis requires a username
+  // password: "my_password"  // Optional: uncomment if your Redis requires a password
+};
+
+const redisPub = new Redis(redisConfig);
+const redisSub = new Redis(redisConfig);
+
+// Option 2: Cluster Setup
+// If you are using a Redis Cluster, comment out the standalone setup above and uncomment this block:
+/*
+const clusterNodes = [
+  { host: "127.0.0.1", port: 6379 },
+  { host: "127.0.0.1", port: 6380 },
+  { host: "127.0.0.1", port: 6381 },
+];
+const clusterOptions = {
+  redisOptions: {
+    // username: "my_username", // Optional: uncomment if your Redis requires a username
+    // password: "my_password"  // Optional: uncomment if your Redis requires a password
+  }
+};
+const redisPub = new Redis.Cluster(clusterNodes, clusterOptions);
+const redisSub = new Redis.Cluster(clusterNodes, clusterOptions);
+*/
+
+
+// Listen for sharded messages from Redis and send to valid WebSocket instances
+redisSub.on("smessage", (channel, message) => {
+  try {
+    // The channel argument tells us exactly which chat room this message is for!
+    if (WS_INSTANCES[channel]) {
+      WS_INSTANCES[channel].forEach((ws) => {
+        ws.send(message);
+      });
+    }
+  } catch (error) {
+    console.error("Error processing Redis message:", error);
+  }
+});
+
+const wsApp = uWS.App().ws("/*", {
+  compression: 0,
+  maxPayloadLength: 16 * 1024 * 1024,
+  idleTimeout: 8,
+
+  upgrade: (res, req, context) => {
+    const channel_name = req.getQuery("channel_name");
+    const user = req.getQuery("user");
+    if (!channel_name || !user) {
+      res.writeStatus("400 Bad Request! missing channel_name or user in query parameter").end();
+      return;
+    }
+    res.upgrade({ channel_name, user }, req.getHeader("sec-websocket-key"), req.getHeader("sec-websocket-protocol"), req.getHeader("sec-websocket-extensions"), context);
+  },
+
+  open: (ws) => {
+    const channel_name = ws.channel_name;
+    
+    // If this is the first local user in this channel, subscribe to it in Redis
+    if (!WS_INSTANCES[channel_name]) {
+      WS_INSTANCES[channel_name] = [];
+      redisSub.ssubscribe(channel_name, (err) => {
+        if (err) console.error(`Failed to subscribe to ${channel_name}:`, err);
+      });
+    }
+    WS_INSTANCES[channel_name].push(ws);
+    
+    ws.send(JSON.stringify({ event: "welcome", message: `Welcome ${ws.user} to ${channel_name}!` }));
+  },
+
+  message: (ws, message) => {
+    try {
+      const msg = Buffer.from(message).toString();
+      const parsedMsg = JSON.parse(msg);
+
+      // Publish the incoming message to Redis instead of echoing directly.
+      // This bridges the message across all Node.js instances!
+      const payload = {
+        event: "broadcast",
+        from: ws.user,
+        channel_name: parsedMsg.channel_name, // specify this if you want targeted delivery
+        data: parsedMsg,
+        timestamp: Date.now(),
+      };
+
+      // Uses spublish for Sharded Pub/Sub. ioredis automatically hashes channel_name to distribute load!
+      redisPub.spublish(ws.channel_name, JSON.stringify(payload));
+    } catch (error) {
+      ws.send(JSON.stringify({ event: "error", message: error.message }));
+    }
+  },
+
+  close: (ws) => {
+    const channel_name = ws.channel_name;
+    WS_INSTANCES[channel_name] = WS_INSTANCES[channel_name]?.filter((conn) => conn !== ws) || [];
+    
+    // If no local users are left in this channel, unsubscribe from Redis to save resources
+    if (WS_INSTANCES[channel_name].length === 0) {
+      delete WS_INSTANCES[channel_name];
+      redisSub.sunsubscribe(channel_name, (err) => {
+        if (err) console.error(`Failed to unsubscribe from ${channel_name}:`, err);
+      });
+    }
+  },
+});
+
+wsApp.listen(9001, (token) => {
+  if (token) {
+    console.log("WebSocket listening on ws://localhost:9001");
+  }
+});
 ```
 
 ## Supported Node Versions
