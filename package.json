@@ -6,7 +6,9 @@
   "types": "./index.d.ts",
   "scripts": {
     "release:git": "node scripts/release-git.js",
-    "postpublish": "node scripts/release-git.js"
+    "postpublish": "node scripts/release-git.js",
+    "release": "npm run release:check && npm version patch --no-git-tag-version && npm publish",
+    "release:check": "test \"$(git rev-parse --abbrev-ref HEAD)\" = main || { echo \"Release from the main branch\"; exit 1; }; test -z \"$(git status --porcelain)\" || { echo \"Commit or stash your changes before releasing\"; exit 1; }; npm owner ls \"$npm_package_name\" 2>/dev/null | grep -q \"^$(npm whoami 2>/dev/null) \" || { echo \"Log in to npm (npm login) as an owner of $npm_package_name first\"; exit 1; }"
   },
   "repository": {
     "type": "git",
